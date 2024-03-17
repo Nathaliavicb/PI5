@@ -22,8 +22,9 @@ public class AcoesController:ControllerBase{
     }
     //Rota para atualizar os dados das ações
     [HttpPost("atualizar-dados")]
-    public void AtualizarDados() {
-        _acoesService.AtualizaDados();
+    public Task AtualizarDados() {
+        return _acoesService.AtualizaDados();
+
 
     }
 
