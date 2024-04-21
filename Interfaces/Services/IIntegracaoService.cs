@@ -9,7 +9,7 @@ public interface IIntegracaoService{
     //Criando assinatura do método que iremos utilizar para pegar os dados
 
     //Utilizamos o task para informar que o método é assincrono
-    public Task<RetornoAPI> GetDados(string caminho, string nomeAcao);
+    public Task<RetornoAPI> GetDados(string caminho, List<string> acoes);
 
     
 }

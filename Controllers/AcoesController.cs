@@ -24,8 +24,11 @@ public class AcoesController:ControllerBase{
     [HttpPost("atualizar-dados")]
     public Task AtualizarDados() {
         return _acoesService.AtualizaDados();
+    }
 
-
+    [HttpGet("melhor-acao")]
+    public Task MelhorAcao() {
+        return _acoesService.MelhorAcao();
     }
 
 }

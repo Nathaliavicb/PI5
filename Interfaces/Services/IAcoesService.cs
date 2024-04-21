@@ -7,6 +7,6 @@ public interface IAcoesService{
 
     //Criando assinatura do método que iremos utilizar para atualizar os dados
     public Task AtualizaDados();
-
+    public Task MelhorAcao();
     
 }
