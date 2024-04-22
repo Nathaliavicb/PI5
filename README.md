@@ -25,5 +25,5 @@
 + Das 5 ações, escolhemos as 3 que tiveram o maior desvio padrão em relação a ao valor de Abertura do dia 15-04, visto que as ações com maior desvio tem uma tendencia maior a crescer em curto prazo. Portanto, a primeira parte da análise está finalizada, pegamos as 3 melhores ações mais tendenciosas de um grupos de 5.
 + Finalizamos nosso investimento no dia 19-04, com os dados de perda e ganho que tivemos em cada dia da semana na nossa carteira.
 
-**Calculo Média Móvel:**
+**Calculo Média Móvel:** \
 **Calulo Desvio Padrão:**
