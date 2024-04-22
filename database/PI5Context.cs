@@ -11,5 +11,11 @@ public class PI5Context:DbContext{
     //Toda vez que chamar o Context.Acoes/Valores, irá chamar a tabela no banco. 
     public DbSet<Acoes> Acoes{get;set;}
     public DbSet<Valores> Valores{get;set;}
+    public DbSet<CarteiraAcao> CarteiraAcao {get;set;}
+
+    public DbSet<Carteira> Carteira {get;set;}
+    public DbSet<HistoricoCarteira> HistoricoCarteira {get;set;}
+
+
 
 }

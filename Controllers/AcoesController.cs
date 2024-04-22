@@ -26,9 +26,9 @@ public class AcoesController:ControllerBase{
         return _acoesService.AtualizaDados();
     }
 
-    [HttpGet("melhor-acao")]
-    public Task MelhorAcao() {
-        return _acoesService.MelhorAcao();
+    [HttpGet("historico-fechamento")]
+    public Task HistoricoFechamento() {
+        return _acoesService.HistoricoFechamento();
     }
 
 }

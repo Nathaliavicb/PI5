@@ -42,7 +42,6 @@ public class IntegracaoService:IIntegracaoService{
             }
         }
 
-        Console.WriteLine(acoesTexto);
         //Montando a URL
         url_padrao = url_padrao + caminho + '/' + acoesTexto + "?range=5y&interval=1d&fundamental=true&token=" + token;
         //Objeto responsável por fazer a requisição
@@ -52,7 +51,6 @@ public class IntegracaoService:IIntegracaoService{
         //Pegando o conteúdo do retorno da API e lendo como string
         var retorno = await response.Content.ReadAsStringAsync();
         //Pegando os dados do json na API e inserindo em string na classe RetornoAPI
-        Console.WriteLine(retorno);
         var dados = JsonSerializer.Deserialize<RetornoAPI>(retorno);
         return dados;
     }
