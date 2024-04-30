@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Text.Json;
 using pi5.database;
+using pi5.entities;
 using pi5.Interfaces.Services;
 using PI5.entities;
 
@@ -43,7 +44,7 @@ public class IntegracaoService:IIntegracaoService{
         }
 
         //Montando a URL
-        url_padrao = url_padrao + caminho + '/' + acoesTexto + "?range=5y&interval=1d&fundamental=true&token=" + token;
+        url_padrao = url_padrao + caminho + '/' + acoesTexto + "?range=1y&interval=1d&fundamental=true&token=" + token;
         //Objeto responsável por fazer a requisição
         HttpClient httpClient = new();
         //retorno vindo na variável response
@@ -53,6 +54,22 @@ public class IntegracaoService:IIntegracaoService{
         //Pegando os dados do json na API e inserindo em string na classe RetornoAPI
         var dados = JsonSerializer.Deserialize<RetornoAPI>(retorno);
         return dados;
+    }
+
+    public async Task<List<string>> TodasAcoes(){
+        
+        string url_padrao = _configuration.GetValue<String>("URL_PADRAO") + "available";
+
+        HttpClient httpClient = new();
+        //retorno vindo na variável response
+        var response = await httpClient.GetAsync(url_padrao);
+        //Pegando o conteúdo do retorno da API e lendo como string
+        var retorno = await response.Content.ReadAsStringAsync();
+        //Pegando os dados do json na API e inserindo em string na classe RetornoAPI
+        var dados = JsonSerializer.Deserialize<TodasAcoes>(retorno);
+        return dados.Stocks;
+
+
     }
 
 }

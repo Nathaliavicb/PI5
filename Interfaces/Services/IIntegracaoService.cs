@@ -10,6 +10,7 @@ public interface IIntegracaoService{
 
     //Utilizamos o task para informar que o método é assincrono
     public Task<RetornoAPI> GetDados(string caminho, List<string> acoes);
+    public Task<List<string>> TodasAcoes();
 
     
 }

@@ -22,9 +22,34 @@ public class AcoesService:IAcoesService{
     //Task: void do async
     public async Task AtualizaDados(){
         //Validações para adicionar as ações no banco. 
-        RetornoAPI retornoDados = await _integracaoService.GetDados("quote", new() { "BBAS3", "ITUB4", "TSLA34", "VALE3", "RENT3"});
+        var todasAcoes = await _integracaoService.TodasAcoes();
+        List<string> vinteAcoes = new();
+
+        int contador = 0;
+
+        for(int i = 0; i<todasAcoes.Count; i++){
+            if (contador == 20){
+                await AtualizaAcoesBanco(vinteAcoes);
+                contador = 0;
+                vinteAcoes.Clear();
+                
+            }
+            vinteAcoes.Add(todasAcoes[i]);
+            contador++;
+        }
+    
+        if(contador > 0){
+            await AtualizaAcoesBanco(vinteAcoes);
+
+        }
         
-        //Verificando se o dado encontrado na API já está inserido na coluna NOE no banco. 
+    }
+
+    private async Task AtualizaAcoesBanco(List<string> acoesNome){
+
+        RetornoAPI retornoDados = await _integracaoService.GetDados("quote", acoesNome);
+        
+        //Verificando se o dado encontrado na API já está inserido na coluna no banco. 
         foreach (var acao in retornoDados.Results)
         {
 
@@ -84,14 +109,14 @@ public class AcoesService:IAcoesService{
 
             }
         }
-
     }
+
 
     //Decidir as 3 melhores ações das 5 para investir o dinheiro com base na análise da ultima semana
     public async Task HistoricoFechamento() {
         
-        string dataInicial = "2024-04-08 00:00:00";
-        string dataFinal = "2024-04-12 23:59:59";
+        string dataInicial = "2024-04-15 00:00:00";
+        string dataFinal = "2024-04-19 23:59:59";
         //Convertendo a data para o padrão aceito pelo .net
         DateTime dataInicio;
         DateTime.TryParseExact(dataInicial, "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out dataInicio);
@@ -100,11 +125,11 @@ public class AcoesService:IAcoesService{
         
         // Camando os métodos e passando os parametros
         var mediaMovel = await GetMediaMovel(dataInicio, dataFim);
-        var melhoresAcoes = await MelhorAcao(mediaMovel, 3);
+        var melhoresAcoes = await MelhorAcao(mediaMovel, 5);
         int carteiraId = await CadastroCarteira(melhoresAcoes);
 
-        dataInicial = "2024-04-15 00:00:00";
-        dataFinal = "2024-04-19 23:59:59";
+        dataInicial = "2024-04-22 00:00:00";
+        dataFinal = "2024-04-26 23:59:59";
         DateTime.TryParseExact(dataInicial, "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out dataInicio);
         DateTime.TryParseExact(dataFinal, "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out dataFim);
 
@@ -131,12 +156,17 @@ public class AcoesService:IAcoesService{
                 contador ++;
 
             }
-            //adicionando o id da ação e a média movel no periodo selecionado na lista de mediaAcoes
-            mediaAcoes.Add(new MediaAcoes{
+
+            if(contador > 0){
+                //adicionando o id da ação e a média movel no periodo selecionado na lista de mediaAcoes
+
+                mediaAcoes.Add(new MediaAcoes{
                 AcaoId = acao.Id, 
                 MediaMovel = somaFechamento / contador,
                 Desvio = 0
             });
+            }
+           
 
         }
         return mediaAcoes;
@@ -144,7 +174,7 @@ public class AcoesService:IAcoesService{
     } 
 //Escolher a melhor 3 ações das 5 que tem na carteira
     public async Task<List<MediaAcoes>> MelhorAcao(List<MediaAcoes> mediaAcoes, int qtdAcoesEscolhidas){
-        string dataInicioInvestimento = "2024-04-15 10:00:00";
+        string dataInicioInvestimento = "2024-04-22 10:00:00";
         //Convertendo a data para o padrão aceito pelo .net
         DateTime dataInicio;
         DateTime.TryParseExact(dataInicioInvestimento, "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out dataInicio);   

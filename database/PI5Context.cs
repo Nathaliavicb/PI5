@@ -12,7 +12,6 @@ public class PI5Context:DbContext{
     public DbSet<Acoes> Acoes{get;set;}
     public DbSet<Valores> Valores{get;set;}
     public DbSet<CarteiraAcao> CarteiraAcao {get;set;}
-
     public DbSet<Carteira> Carteira {get;set;}
     public DbSet<HistoricoCarteira> HistoricoCarteira {get;set;}
 
