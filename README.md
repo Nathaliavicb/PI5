@@ -32,3 +32,15 @@
 
 **Calculo Média Móvel:** soma valor_Fechamento / qtdDias \
 **Calulo Desvio Padrão:** 100*Valor_abertura / mediaMovel -100
+
+
+# RF03
+
++ Para a entrega da RF03, pegamos a maior quantidade de ações disponível na api, inserimos as ações no banco com o valor de fechamento e abertura.
++ Dessas ações, pedimos para o motor retornar as 5 que tiveram o maior desvio padrão no valor de abertura da ação no dia 22/04, visto que mapeamos a média móvel de todas as ações no periodo de 15/04 a 19/04 e calculamos o desvio padrão em relação ao valor_Abertura de cada ação do banco.
++ Definimos que quanto maior o desvio padrão, mas tendenciosa é a ação de crescer num período curto/curtíssimo.
+
+  ##PENDENCIAS:
+  + Criar rotina para executar o codigo todo dia as 03h da manhã.
+  + Retornar os dados necessários para o frontEnd.
+  + Pegar mais ações da API
