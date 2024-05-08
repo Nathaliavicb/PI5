@@ -41,6 +41,6 @@
 + Definimos que quanto maior o desvio padrão, mas tendenciosa é a ação de crescer num período curto/curtíssimo.
 
   ##PENDENCIAS:
-  + Criar rotina para executar o codigo todo dia as 03h da manhã.
+  + Criar rotina para executar o codigo todo dia as 03h da manhã - Concluido
   + Retornar os dados necessários para o frontEnd.
-  + Pegar mais ações da API
+  + Pegar mais ações da API - Concluido
