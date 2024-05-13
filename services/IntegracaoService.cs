@@ -44,7 +44,7 @@ public class IntegracaoService:IIntegracaoService{
         }
 
         //Montando a URL
-        url_padrao = url_padrao + caminho + '/' + acoesTexto + "?range=1y&interval=1d&fundamental=true&token=" + token;
+        url_padrao = url_padrao + caminho + '/' + acoesTexto + "?range=3mo&interval=1d&fundamental=true&token=" + token;
         //Objeto responsável por fazer a requisição
         HttpClient httpClient = new();
         //retorno vindo na variável response

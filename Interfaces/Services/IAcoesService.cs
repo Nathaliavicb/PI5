@@ -15,10 +15,10 @@ public interface IAcoesService{
 //Retorna o ID, Media movel e desvio das melhores açoes
     public Task<List<MediaAcoes>> MelhorAcao(List<MediaAcoes> mediaAcoes, int qtdAcoesEscolhidas);
 
-    public Task<int> CadastroCarteira(List<MediaAcoes> melhoresAcoes);
+    public Task AtualizaCarteira(List<MediaAcoes> melhoresAcoes);
 
-    public Task InsercaoHistorico(int carteiraId, DateTime dataInicio, DateTime dataFim);
-    // public Task<RetornoDashboardAPI> RetornoDadosDashboard(int carteiraId);
+    // public Task InsercaoHistorico(int carteiraId, DateTime dataInicio, DateTime dataFim);
+    public Task<RetornoDashboardAPI> RetornoDadosDashboard(int carteiraId);
 }
 
   

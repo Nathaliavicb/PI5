@@ -9,7 +9,11 @@ public class HistoricoCarteira{
     public int Carteira_id{ get ; set;}
     public int Acao_id{ get ; set;}
     public DateTime Data_historico{ get ; set;}
-    public decimal Valor_Fechamento_Acao{ get ; set;}
+    public decimal Valor_Compra{ get ; set;}
+    public decimal? Valor_Venda{ get ; set;}
+
+    
+
 
 
 }

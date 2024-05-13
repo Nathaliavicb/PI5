@@ -15,10 +15,8 @@ builder.Services.AddScoped<IAcoesService, AcoesService>();
 builder.Services.AddScoped<IIntegracaoService, IntegracaoService>();
 //Injeção de dependencia.
 
-
-
-
-
+//Chamando a rotina
+builder.Services.AddHostedService<Rotina>();
 
 
 // Configurando o banco de dados
@@ -42,3 +40,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
