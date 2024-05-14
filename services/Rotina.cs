@@ -4,24 +4,26 @@ namespace pi5.services;
 
 public class Rotina : BackgroundService{
 
-    private readonly IAcoesService _acoesService;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public Rotina (IAcoesService acoesService) {
-        _acoesService = acoesService;
+    public Rotina (IServiceScopeFactory serviceScopeFactory) {
+        _serviceScopeFactory = serviceScopeFactory;
     }
-    protected override Task ExecuteAsync(CancellationToken stoppingToken){
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken){
+
+        using var scope = _serviceScopeFactory.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<IAcoesService>();
 
         while (!stoppingToken.IsCancellationRequested){
 
-            TimeSpan rodarRotina = new TimeSpan(10, 1, 0); //Hora que quero que minha rotina rode
-            TimeSpan agora = DateTime.Now.TimeOfDay;
-
+            TimeSpan rodarRotina = new TimeSpan(22, 21, 40); //Hora que quero que minha rotina rode
+            TimeSpan agora = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+            Console.WriteLine($"{rodarRotina} / {agora}");
             if(rodarRotina == agora){
-                _acoesService.HistoricoFechamento();
+                await service.HistoricoFechamento();
             }
 
-            Task.Delay(60000);
+            await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
         }
-        return Task.CompletedTask;
     }
 }

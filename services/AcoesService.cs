@@ -173,12 +173,13 @@ public class AcoesService:IAcoesService{
 //Escolher as 5 melhores ações de todas
     public async Task<List<MediaAcoes>> MelhorAcao(List<MediaAcoes> mediaAcoes, int qtdAcoesEscolhidas){
         DateTime dataInicio = DateTime.Today;
-        List<Valores> historicoAcoes = await _context.Valores.Where(x=> x.Data == dataInicio).ToListAsync();
+        List<Valores> historicoAcoes = await _context.Valores.Where(x=> x.Data.Date == dataInicio.Date).ToListAsync();
 
         //Calculando o desvio padrão referente a cada ação da minha lista de mediaAcoes com a data atual. 
         for(int i = 0; i < mediaAcoes.Count; i++){
 
             mediaAcoes[i].Desvio = (float) Math.Round(((100*historicoAcoes.FirstOrDefault(x=>x.Acao_id == mediaAcoes[i].AcaoId).Valor_Abertura) / mediaAcoes[i].MediaMovel)-100, 2);
+            
             Console.WriteLine($"acaoID: {mediaAcoes[i].AcaoId} | Media Movel: {mediaAcoes[i].MediaMovel} | Valor Abertura: R${historicoAcoes.FirstOrDefault(x=>x.Acao_id == mediaAcoes[i].AcaoId).Valor_Abertura} | Desvio: {mediaAcoes[i].Desvio}%");
         }
 
@@ -203,8 +204,10 @@ public class AcoesService:IAcoesService{
             var acoesCompra = melhoresAcoes.ExceptBy(_context.CarteiraAcao.Where(x=> x.Qtd_cotas > 0).Select(x=> x.Acao_id).ToList(), x=> x.AcaoId);
             //Guardando numa variável as ações resultado de MelhorAcao que são iguais as ações que ja tenho na minha carteira atual
             var acoesIguais = await _context.CarteiraAcao.Where(x=> acoesId.Contains(x.Acao_id)).ToListAsync();
-            //Apagando as ações existentes no banco, exceto as ações da interseção(acoesIguais). 
-            var acoesVender =  await _context.CarteiraAcao.Where(x=> x.Qtd_cotas > 0).ExceptBy(acoesIguais.Select(x => x.Acao_id), x=> x.Acao_id).ToListAsync();
+            //Identificando as ações em que a QtdCotas é maior que 0, ou seja, as que poderão ser vendidas
+            var acoesVender =  await _context.CarteiraAcao.Where(x=> x.Qtd_cotas > 0).ToListAsync();
+            //Exceto as ações da interseção(acoesIguais). 
+            acoesVender = acoesVender.ExceptBy(acoesIguais.Select(x => x.Acao_id), x=> x.Acao_id).ToList();
 
             //Venda das ações 
             foreach (var acaoVender in acoesVender){
@@ -264,8 +267,10 @@ public class AcoesService:IAcoesService{
             _context.Carteira.Add(carteira);
             await _context.SaveChangesAsync();
 
+            //Pegando as melhores ações da lista de Melhores ações
             foreach(var acao in melhoresAcoes)
             {
+                //Inserindo aa 5 melhores açoes na carteira
                 CarteiraAcao carteiraAcao = new(){
                     Carteira_id = carteira.Id,
                     Acao_id = acao.AcaoId,
@@ -275,54 +280,32 @@ public class AcoesService:IAcoesService{
                 _context.CarteiraAcao.Add(carteiraAcao);
                 await _context.SaveChangesAsync();
             }
-
+            await InsercaoHistorico(carteira.Id);
         }
 
     }
-    // //Tabela historico_carteira
-    // public async Task InsercaoHistorico(int carteiraId, DateTime dataInicio, DateTime dataFim){
+    //Tabela historico_carteira
+    public async Task InsercaoHistorico(int carteiraId){
         
-    //     List<CarteiraAcao> carteirasAcoes = await _context.CarteiraAcao.Where(x=> x.Carteira_id == carteiraId).ToListAsync();
+        List<CarteiraAcao> carteirasAcoes = await _context.CarteiraAcao.Where(x=> x.Carteira_id == carteiraId).ToListAsync();
         
-    //     //rodando foreach nas melhores ações a serem investidas
-    //     foreach(var acao in carteirasAcoes){
-    //         List<Valores> historicoAcoes = await _context.Valores.Where(x=> x.Data >= dataInicio && x.Data <= dataFim && x.Acao_id==acao.Acao_id).ToListAsync();
-    //         historicoAcoes = historicoAcoes.OrderBy(x => x.Data).ToList();
-    //         for(int i = 0; i < historicoAcoes.Count; i++){
-    //             if(i == 0){
-    //                 HistoricoCarteira historicoCarteira = new(){
-    //                     Carteira_id = carteiraId,
-    //                     Acao_id = acao.Acao_id,
-    //                     Data_historico = historicoAcoes[i].Data,
-    //                     Valor_Fechamento_Acao = historicoAcoes[i].Valor_Abertura*acao.Qtd_cotas
-    
+        //rodando foreach nas melhores ações a serem investidas
+        foreach(var acao in carteirasAcoes){
+            Valores historicoAcoes = await _context.Valores.Where(x => x.Data.Date == DateTime.Today.Date && x.Acao_id == acao.Acao_id).FirstOrDefaultAsync();
+            
+            HistoricoCarteira historicoCarteira = new(){
+                Carteira_id = carteiraId,
+                Acao_id = acao.Acao_id,
+                Data_historico = historicoAcoes.Data,
+                Valor_Compra = historicoAcoes.Valor_Abertura
+            };
 
-    //                 };
+            _context.HistoricoCarteira.Add(historicoCarteira);
+            await _context.SaveChangesAsync();
+        }
+        
+    }
 
-    //                 _context.HistoricoCarteira.Add(historicoCarteira);
-    //                 await _context.SaveChangesAsync();
-    //             }
-    //             else{
-    //                 HistoricoCarteira historicoCarteira = new(){
-    //                     Carteira_id = carteiraId,
-    //                     Acao_id = acao.Acao_id,
-    //                     Data_historico = historicoAcoes[i].Data,
-    //                     Valor_Fechamento_Acao = historicoAcoes[i].Valor_Fechamento*acao.Qtd_cotas
-    
-
-    //                 };
-
-    //                 _context.HistoricoCarteira.Add(historicoCarteira);
-    //                 await _context.SaveChangesAsync();
-    //             }
-    //         }
-    //     }
-    // }
-    // // public Task<RetornoDashboardAPI> RetornoDadosDashboard(int carteiraId){
-    // //     List<HistoricoCarteira> historicoCarteira = await _context.HistoricoCarteira.Where(x=>x.Carteira_id == carteiraId).ToListAsync();
-    // //     List<DateTime> Datas = await _context.
-    
-    // // }
    public async Task<RetornoDashboardAPI> RetornoDadosDashboard(int carteiraId)
     {
         List<HistoricoCarteira> historicoCarteira = await _context.HistoricoCarteira.Where(x => x.Carteira_id == carteiraId).ToListAsync();
