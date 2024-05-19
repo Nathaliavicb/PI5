@@ -53,61 +53,65 @@ public class AcoesService:IAcoesService{
         //Verificando se o dado encontrado na API já está inserido na coluna no banco. 
         foreach (var acao in retornoDados.Results)
         {
-
-            //verifica se existe uma ação no banco com o nome da que está sendo inserida
-            var acaoBanco = _context.Acoes.FirstOrDefault(x=>x.Nome==acao.LongName);
-            if (acaoBanco == null){
-                //Se o nome da ação na API ainda nao existir no banco(for nulo), irá instanciar a ação e adicionar no banco. 
-                acaoBanco = new Acoes (){
-                    Nome = acao.LongName,
-                    Logo = acao.Logourl,
-                    Sigla = acao.Symbol,
-
-                };
-                _context.Acoes.Add(acaoBanco);
-                await _context.SaveChangesAsync();
-
-                acaoBanco = _context.Acoes.FirstOrDefault(x=>x.Nome==acao.LongName);
-            }
-
-            //pegando todo o conteúdo da determinada ação existente no banco. 
-            List<Valores>? valoresBanco = await _context.Valores.Where(x => x.Acao_id == acaoBanco.Id).ToListAsync();
-            foreach (var valoresAPI in acao.HistoricalDataPrice){
-                DateTimeOffset dateTime = DateTimeOffset.FromUnixTimeSeconds(valoresAPI.Data);
-                if (valoresBanco.Count == 0){
-                    Valores valor = new Valores(){
-                        Acao_id = acaoBanco.Id,
-                        Valor_Fechamento = valoresAPI.Close,
-                        Valor_Abertura = valoresAPI.Open,
-                        Valor_Alta = valoresAPI.High,
-                        Valor_Baixa = valoresAPI.Low,
-                        Data = dateTime.LocalDateTime
+            if(acao.LongName != null)
+            {
+                //verifica se existe uma ação no banco com o nome da que está sendo inserida
+                var acaoBanco = _context.Acoes.FirstOrDefault(x=>x.Nome==acao.LongName);
+                if (acaoBanco == null){
+                    //Se o nome da ação na API ainda nao existir no banco(for nulo), irá instanciar a ação e adicionar no banco. 
+                    acaoBanco = new Acoes (){
+                        Nome = acao.LongName,
+                        Logo = acao.Logourl,
+                        Sigla = acao.Symbol,
 
                     };
-
-                    _context.Valores.Add(valor);
-
+                    _context.Acoes.Add(acaoBanco);
                     await _context.SaveChangesAsync();
 
-
+                    acaoBanco = _context.Acoes.FirstOrDefault(x=>x.Nome==acao.LongName);
                 }
-                else{
-                    if (valoresBanco.Where(x=>x.Data==dateTime.LocalDateTime).FirstOrDefault() == null){
-                        Valores valor = new Valores(){
-                            Acao_id = acaoBanco.Id,
-                            Valor_Fechamento = valoresAPI.Close,
-                            Valor_Abertura = valoresAPI.Open,
-                            Valor_Alta = valoresAPI.High,
-                            Valor_Baixa = valoresAPI.Low,
-                            Data = dateTime.LocalDateTime
 
-                        };
-                    _context.Valores.Add(valor);
-                    await _context.SaveChangesAsync();
+                //pegando todo o conteúdo da determinada ação existente no banco. 
+                List<Valores>? valoresBanco = await _context.Valores.Where(x => x.Acao_id == acaoBanco.Id).ToListAsync();
+                foreach (var valoresAPI in acao.HistoricalDataPrice){
+                    if(valoresAPI.Open != null)
+                    {
+                        DateTimeOffset dateTime = DateTimeOffset.FromUnixTimeSeconds(valoresAPI.Data);
+                        if (valoresBanco.Count == 0){
+                            Valores valor = new Valores(){
+                                Acao_id = acaoBanco.Id,
+                                Valor_Fechamento = (decimal)valoresAPI.Close,
+                                Valor_Abertura = (decimal)valoresAPI.Open,
+                                Valor_Alta = (decimal)valoresAPI.High,
+                                Valor_Baixa = (decimal)valoresAPI.Low,
+                                Data = dateTime.LocalDateTime
 
+                            };
+
+                            _context.Valores.Add(valor);
+
+                            await _context.SaveChangesAsync();
+
+
+                        }
+                        else{
+                            if (valoresBanco.Where(x=>x.Data==dateTime.LocalDateTime).FirstOrDefault() == null){
+                                Valores valor = new Valores(){
+                                    Acao_id = acaoBanco.Id,
+                                    Valor_Fechamento = (decimal)valoresAPI.Close,
+                                    Valor_Abertura = (decimal)valoresAPI.Open,
+                                    Valor_Alta = (decimal)valoresAPI.High,
+                                    Valor_Baixa = (decimal)valoresAPI.Low,
+                                    Data = dateTime.LocalDateTime
+
+                                };
+                            _context.Valores.Add(valor);
+                            await _context.SaveChangesAsync();
+
+                            }
+                        }
                     }
                 }
-
             }
         }
     }
@@ -121,10 +125,13 @@ public class AcoesService:IAcoesService{
         DateTime dataInicio = DateTime.Today.AddDays(-30);
         DateTime dataFim = DateTime.Today.AddDays(-1); 
         
+        // if (DateTime.Today.DayOfWeek != DayOfWeek.Sunday && DateTime.Today.DayOfWeek != DayOfWeek.Saturday)
+        // {
         // Camando os métodos e passando os parametros
-        var mediaMovel = await GetMediaMovel(dataInicio, dataFim);
-        var melhoresAcoes = await MelhorAcao(mediaMovel, 5);
-        await AtualizaCarteira(melhoresAcoes);
+            var mediaMovel = await GetMediaMovel(dataInicio, dataFim);
+            var melhoresAcoes = await MelhorAcao(mediaMovel, 5);
+            await AtualizaCarteira(melhoresAcoes);
+        // }
 
         // dataInicial = "2024-04-22 00:00:00";
         // dataFinal = "2024-04-26 23:59:59";
@@ -172,7 +179,7 @@ public class AcoesService:IAcoesService{
     } 
 //Escolher as 5 melhores ações de todas
     public async Task<List<MediaAcoes>> MelhorAcao(List<MediaAcoes> mediaAcoes, int qtdAcoesEscolhidas){
-        DateTime dataInicio = DateTime.Today;
+        DateTime dataInicio = DateTime.Today.AddDays(-2);
         List<Valores> historicoAcoes = await _context.Valores.Where(x=> x.Data.Date == dataInicio.Date).ToListAsync();
 
         //Calculando o desvio padrão referente a cada ação da minha lista de mediaAcoes com a data atual. 
@@ -216,7 +223,7 @@ public class AcoesService:IAcoesService{
                 await _context.SaveChangesAsync();
                 //PEGANDO TODO MUNDO QUE TEM O VALOR VENDA NULO. 
                 var historicoCarteira = await _context.HistoricoCarteira.Where(x => x.Acao_id == acaoVender.Acao_id && x.Valor_Venda == null).FirstOrDefaultAsync();
-                var valorVenda = (await _context.Valores.Where(x=> x.Data.Date == DateTime.Today.Date).FirstOrDefaultAsync()).Valor_Abertura;
+                var valorVenda = (await _context.Valores.Where(x=> x.Data.Date == DateTime.Today.AddDays(-2).Date && x.Acao_id == acaoVender.Acao_id).FirstOrDefaultAsync()).Valor_Abertura;
                 //vendendo todas as ações cujo o valor de venda anterior era Null
                 historicoCarteira.Valor_Venda = valorVenda;
                 _context.HistoricoCarteira.Update(historicoCarteira);
@@ -227,7 +234,7 @@ public class AcoesService:IAcoesService{
             //Compra das ações (Atribuição  na tabela de Carteira Acao)
             foreach(var acaoCompra in acoesCompra){
 
-                var valorCompra = (await _context.Valores.Where(x=> x.Data.Date == DateTime.Today.Date).FirstOrDefaultAsync()).Valor_Abertura;
+                var valorCompra = (await _context.Valores.Where(x=> x.Data.Date == DateTime.Today.AddDays(-2).Date && x.Acao_id == acaoCompra.AcaoId).FirstOrDefaultAsync()).Valor_Abertura;
                
                 var carteiraAcao = await _context.CarteiraAcao.Where(x=> x.Acao_id == acaoCompra.AcaoId).FirstOrDefaultAsync();
                 
@@ -291,7 +298,7 @@ public class AcoesService:IAcoesService{
         
         //rodando foreach nas melhores ações a serem investidas
         foreach(var acao in carteirasAcoes){
-            Valores historicoAcoes = await _context.Valores.Where(x => x.Data.Date == DateTime.Today.Date && x.Acao_id == acao.Acao_id).FirstOrDefaultAsync();
+            Valores historicoAcoes = await _context.Valores.Where(x => x.Data.Date == DateTime.Today.AddDays(-2).Date && x.Acao_id == acao.Acao_id).FirstOrDefaultAsync();
             
             HistoricoCarteira historicoCarteira = new(){
                 Carteira_id = carteiraId,
@@ -306,20 +313,57 @@ public class AcoesService:IAcoesService{
         
     }
 
-   public async Task<RetornoDashboardAPI> RetornoDadosDashboard(int carteiraId)
-    {
-        List<HistoricoCarteira> historicoCarteira = await _context.HistoricoCarteira.Where(x => x.Carteira_id == carteiraId).ToListAsync();
+   public async Task<RetornoDashboardAPI> RetornoDadosDashboard()
+{
+        List<HistoricoCarteira> historicoCarteira = await _context.HistoricoCarteira.ToListAsync();
         var datasHistorico = from historico in historicoCarteira
                                     group historico by historico.Data_historico into novoHistorico
                                     orderby novoHistorico.Key
                                     select novoHistorico;
-
-        foreach (var item in datasHistorico)
+        
+        List<HistoricoAcoesRetornoAPI> historicoAcoesRetornoAPI = new();
+        foreach (var data in datasHistorico)
         {
-            Console.WriteLine(item.Key.ToString());
+            Console.WriteLine(data.Key.ToString());
+            //Pegando os dados da tabela Historico Carteira
+            var acoesCarteira = await _context.HistoricoCarteira.Where(x => x.Data_historico == data.Key).ToListAsync();
+
+            List<AcoesRetornoAPI> acoesRetornoAPI = new();
+
+            decimal valorCarteira = 0;
+            decimal retornoDiario = 0;
+
+            foreach (var i in acoesCarteira)
+            {
+                //Pegando os dados da tabela acao
+                var acaoRetorno = await _context.Acoes.Where(x=> x.Id == i.Acao_id).FirstOrDefaultAsync();
+                //Pegando os dados da tabela de carteira_acao
+                var carteiraRetorno = await _context.CarteiraAcao.Where(x=> x.Acao_id == i.Acao_id).FirstOrDefaultAsync();
+                //Pegando os dados da tabela de Vvlores
+                var valoresRetorno = await _context.Valores.Where(x=> x.Acao_id == i.Acao_id && x.Data.Date == i.Data_historico.Date).FirstOrDefaultAsync();
+                acoesRetornoAPI.Add(new AcoesRetornoAPI{
+                    Acao = acaoRetorno.Nome,
+                    Sigla = acaoRetorno.Sigla,
+                    ValorCota = valoresRetorno.Valor_Abertura,
+                    ValorInvestido = valoresRetorno.Valor_Abertura * carteiraRetorno.Qtd_cotas,
+                    RetornoDiario = (valoresRetorno.Valor_Abertura - valoresRetorno.Valor_Fechamento) * carteiraRetorno.Qtd_cotas
+                });   
+                //Somando o valor da minha carteira no dia.
+                valorCarteira = (i.Valor_Compra * carteiraRetorno.Qtd_cotas) + valorCarteira;
+                retornoDiario = (i.Valor_Compra - valoresRetorno.Valor_Fechamento) * 3 + retornoDiario;
+            }
+            
+            historicoAcoesRetornoAPI.Add(new HistoricoAcoesRetornoAPI {
+                Data = data.Key,
+                ValorCarteira = valorCarteira,
+                RetornoDiario = retornoDiario,
+                Acoes = acoesRetornoAPI
+            });
         }
 
-        return new RetornoDashboardAPI();
+        return new RetornoDashboardAPI() {
+            HistoricoAcoes = historicoAcoesRetornoAPI
+        };
     }
 }
 

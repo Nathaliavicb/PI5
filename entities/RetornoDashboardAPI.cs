@@ -19,7 +19,7 @@ public class AcoesRetornoAPI{
     public string Acao {get; set;}
     public string Sigla {get; set;}
     public decimal ValorCota{get; set;}
-    public decimal ValotalInvestido {get; set;}
+    public decimal ValorInvestido {get; set;}
     public decimal RetornoDiario {get; set;}
 
 }

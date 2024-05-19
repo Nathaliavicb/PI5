@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
+using pi5.entities;
 using pi5.Interfaces.Services;
 
 namespace pi5.Controllers;
@@ -29,6 +30,13 @@ public class AcoesController:ControllerBase{
     [HttpGet("historico-fechamento")]
     public Task HistoricoFechamento() {
         return _acoesService.HistoricoFechamento();
+    }
+
+    [HttpGet("retorno-dados-dashboard")]
+    public async Task<RetornoDashboardAPI> RetornoDadosDashboard(){
+        
+        return await _acoesService.RetornoDadosDashboard();
+
     }
 
 }
