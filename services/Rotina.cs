@@ -16,7 +16,7 @@ public class Rotina : BackgroundService{
 
         while (!stoppingToken.IsCancellationRequested){
 
-            TimeSpan rodarRotina = new TimeSpan(22, 21, 40); //Hora que quero que minha rotina rode
+            TimeSpan rodarRotina = new TimeSpan(20, 29, 20); //Hora que quero que minha rotina rode
             TimeSpan agora = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
             Console.WriteLine($"{rodarRotina} / {agora}");
             if(rodarRotina == agora){
