@@ -41,6 +41,43 @@
 + Definimos que quanto maior o desvio padrão, mas tendenciosa é a ação de crescer num período curto/curtíssimo.
 
   ##PENDENCIAS:
-  + Criar rotina para executar o codigo todo dia as 03h da manhã - Concluido
-  + Retornar os dados necessários para o frontEnd.
+  + Criar rotina para executar o codigo todo dia as 10:30 da manhã - Concluido
+  + Retornar os dados necessários para o frontEnd. - Concluido
   + Pegar mais ações da API - Concluido
+ 
+# RF04
+
+Criamos o método RetornoDadosDashboard para retornar os dados para o FRONTEND. 
+Antes de realizar o tutorial abaixo, foi preciso inserir o pequeno código abaixo no nosso Program.cs para tratar os erros de CORS. 
+
+app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithExposedHeaders("Content-Disposition"));
+
+# Para rodar o projeto, siga o tutorial abaixo.
+
+# 🖥️ Instalação
+
+1. Clone este repositório
+```bash
+git clone https://github.com/matheusmatosr/PI5-front.git
+```
+
+Abra o terminal e faça os seguintes códigos:
+
+2. Para instalar as dependências
+
+```bash
+yarn install
+```
+
+3. Para rodar o projeto:
+
+```bash
+yarn run start
+```
+
+Acesse o link que aparecerá no terminal para obter acesso ao projeto.
+
