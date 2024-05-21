@@ -46,10 +46,10 @@
   + Pegar mais ações da API - Concluido
     
 
-  Decisão das ações: /
+  Decisão das ações: \
 ![Sem título](https://github.com/Nathaliavicb/PI5/assets/104801628/ffd2e024-e9a4-40a3-951a-32bab6e88995)
 
-Variáveis que irão fazer a trativa da imagem acima: /
+Variáveis que irão fazer a trativa da imagem acima: \
 acoesCompra, acoesIguais, acoesVender.
 
  
