@@ -18,7 +18,7 @@ public interface IAcoesService{
     public Task AtualizaCarteira(List<MediaAcoes> melhoresAcoes);
 
     // public Task InsercaoHistorico(int carteiraId, DateTime dataInicio, DateTime dataFim);
-    public Task<RetornoDashboardAPI> RetornoDadosDashboard(int carteiraId);
+    public Task<RetornoDashboardAPI> RetornoDadosDashboard();
 }
 
   

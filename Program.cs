@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAcoesService, AcoesService>();
 builder.Services.AddScoped<IIntegracaoService, IntegracaoService>();
+
 //Injeção de dependencia.
 
 //Chamando a rotina
@@ -32,6 +33,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 // }
+app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithExposedHeaders("Content-Disposition"));
 
 app.UseHttpsRedirection();
 
