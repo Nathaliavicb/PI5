@@ -39,4 +39,12 @@ public class AcoesController:ControllerBase{
 
     }
 
+    [HttpGet("retorno-acoes-vendidas")]
+    public async Task<List<RetornoAcoesVendidas>> AcoesVendidas(){
+        
+        return await _acoesService.AcoesVendidas();
+
+    }
+
+
 }

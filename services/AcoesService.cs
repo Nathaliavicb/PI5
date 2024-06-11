@@ -131,13 +131,13 @@ public class AcoesService:IAcoesService{
         DateTime dataInicio = DateTime.Today.AddDays(-30);
         DateTime dataFim = DateTime.Today.AddDays(-1); 
         
-           if (DateTime.Today.DayOfWeek != DayOfWeek.Sunday && DateTime.Today.DayOfWeek != DayOfWeek.Saturday)
-           {
-        // Camando os métodos e passando os parametros
+        if (DateTime.Today.DayOfWeek != DayOfWeek.Sunday && DateTime.Today.DayOfWeek != DayOfWeek.Saturday)
+        {
+            // Camando os métodos e passando os parametros
             var mediaMovel = await GetMediaMovel(dataInicio, dataFim);
             var melhoresAcoes = await MelhorAcao(mediaMovel, 5);
             await AtualizaCarteira(melhoresAcoes);
-            }
+        }
 
         // dataInicial = "2024-04-22 00:00:00";
         // dataFinal = "2024-04-26 23:59:59";
@@ -183,7 +183,7 @@ public class AcoesService:IAcoesService{
         return mediaAcoes;
         
     } 
-//Escolher as 5 melhores ações de todas
+    //Escolher as 5 melhores ações de todas
     public async Task<List<MediaAcoes>> MelhorAcao(List<MediaAcoes> mediaAcoes, int qtdAcoesEscolhidas){
         DateTime dataInicio = DateTime.Today;
         List<Valores> historicoAcoes = await _context.Valores.Where(x=> x.Data.Date == dataInicio.Date).ToListAsync();
@@ -205,6 +205,7 @@ public class AcoesService:IAcoesService{
 
         //INDO NO BANCO, VERIFICANDO SE TEM CARTEIRA CADASTRADA E TRAZENDO ELA
         var carteira = await _context.Carteira.FirstOrDefaultAsync();
+        var hoje = DateTime.Now;
         //Se a carteira estiver com dados, cria uma lista para armazenar os Id's das ações existentes
         if (carteira != null){
            List<int> acoesId = new();
@@ -266,10 +267,29 @@ public class AcoesService:IAcoesService{
                 HistoricoCarteira historicoCarteira = new HistoricoCarteira(){
                     Carteira_id = carteira.Id,
                     Acao_id = acaoCompra.AcaoId,
-                    Data_historico = DateTime.Now,
+                    Data_historico = hoje,
                     Valor_Compra = valorCompra,
-
                 };
+
+                _context.HistoricoCarteira.Add(historicoCarteira);
+
+                await _context.SaveChangesAsync();
+            }
+
+            foreach (var acaoIgual in acoesIguais)
+            {
+                var historicoCarteira = await _context.HistoricoCarteira.Where(x => x.Acao_id == acaoIgual.Acao_id && x.Valor_Venda == null).FirstOrDefaultAsync();
+                historicoCarteira.Valor_Venda = 0;
+                _context.HistoricoCarteira.Update(historicoCarteira);
+                await _context.SaveChangesAsync();
+
+                _context.HistoricoCarteira.Add(new HistoricoCarteira() {
+                    Carteira_id = historicoCarteira.Carteira_id,
+                    Acao_id = historicoCarteira.Acao_id,
+                    Data_historico = hoje,
+                    Valor_Compra = historicoCarteira.Valor_Compra
+                });
+
                 await _context.SaveChangesAsync();
             }
         }
@@ -320,7 +340,7 @@ public class AcoesService:IAcoesService{
     }
 
    public async Task<RetornoDashboardAPI> RetornoDadosDashboard()
-{
+    {
         List<HistoricoCarteira> historicoCarteira = await _context.HistoricoCarteira.ToListAsync();
         var datasHistorico = from historico in historicoCarteira
                                     group historico by historico.Data_historico into novoHistorico
@@ -332,7 +352,7 @@ public class AcoesService:IAcoesService{
         {
             Console.WriteLine(data.Key.ToString());
             //Pegando os dados da tabela Historico Carteira
-            var acoesCarteira = await _context.HistoricoCarteira.Where(x => x.Data_historico == data.Key).ToListAsync();
+            var acoesCarteira = await _context.HistoricoCarteira.Where(x => x.Data_historico.Date == data.Key.Date).ToListAsync();
 
             List<AcoesRetornoAPI> acoesRetornoAPI = new();
 
@@ -370,6 +390,26 @@ public class AcoesService:IAcoesService{
         return new RetornoDashboardAPI() {
             HistoricoAcoes = historicoAcoesRetornoAPI
         };
+    }
+
+    public async Task<List<RetornoAcoesVendidas>> AcoesVendidas(){
+
+        var result = await _context.Acoes
+        .Join(_context.HistoricoCarteira,
+                a => a.Id,
+                h => h.Acao_id,
+                (a, h) => new { a, h })
+        .Where(joined => joined.h.Valor_Venda != null && joined.h.Valor_Venda != 0)
+        .Select(joined => new RetornoAcoesVendidas
+        {
+            Nome = joined.a.Nome,
+            ValorVenda = joined.h.Valor_Venda,
+            ValorCompra = joined.h.Valor_Compra,
+        })
+        .ToListAsync();
+
+    return result;
+
     }
 }
 

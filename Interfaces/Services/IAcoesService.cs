@@ -19,6 +19,8 @@ public interface IAcoesService{
 
     // public Task InsercaoHistorico(int carteiraId, DateTime dataInicio, DateTime dataFim);
     public Task<RetornoDashboardAPI> RetornoDadosDashboard();
+
+    public Task<List<RetornoAcoesVendidas>> AcoesVendidas();
 }
 
   
